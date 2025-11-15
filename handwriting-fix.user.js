@@ -132,6 +132,8 @@
 
                                 parent.style.top = '0';
 
+                                parent.style.bottom = '100px';
+
                                 parent.style.left = '0';
 
                                 parent.style.right = '0';
