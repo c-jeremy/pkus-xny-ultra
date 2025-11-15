@@ -120,11 +120,23 @@
 
                             if (parent && !parent.hasAttribute('data-overlay-fixed')) {
 
-                                parent.style.maxHeight = 'calc(100vh - 120px)';
+                                parent.style.maxHeight = 'calc(100vh - 100px)';
+
+                                parent.style.height = 'auto';
 
                                 parent.style.overflow = 'auto';
 
                                 parent.style.cursor = 'pointer';
+
+                                parent.style.position = 'fixed';
+
+                                parent.style.top = '0';
+
+                                parent.style.left = '0';
+
+                                parent.style.right = '0';
+
+                                parent.style.zIndex = '9999';
 
                                 parent.addEventListener('click', function(e) {
 
