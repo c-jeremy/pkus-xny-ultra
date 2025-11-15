@@ -4,9 +4,9 @@
 
 // @namespace    http://tampermonkey.net/
 
-// @version      4.0
+// @version      5.0
 
-// @description  Efficiently disables scrolling on multiple, dynamically-loaded handwriting canvases without affecting the rest of the page.
+// @description  Prevents browser scrolling and refresh during handwriting, and fixes image overlay issues.
 
 // @author       CJeremy
 
@@ -40,8 +40,6 @@
 
     function applyFix(element) {
 
-        // First, check if we have already fixed this element. If so, do nothing.
-
         if (element.hasAttribute(fixedAttribute)) {
 
             return;
@@ -50,7 +48,13 @@
 
         console.log('Tampermonkey: Applying fix to new canvas element.', element);
 
-        // 1. Prevent drawing from being interpreted as a scroll gesture.
+        // 1. Prevent all touch events from triggering browser actions
+
+        element.addEventListener('touchstart', function(event) {
+
+            event.stopPropagation();
+
+        }, { passive: false });
 
         element.addEventListener('touchmove', function(event) {
 
@@ -60,13 +64,93 @@
 
         }, { passive: false });
 
-        // 2. Prevent pull-to-refresh when drawing on this specific element.
+        element.addEventListener('touchend', function(event) {
+
+            event.stopPropagation();
+
+        }, { passive: false });
+
+        // 2. Prevent pull-to-refresh and overscroll
 
         element.style.overscrollBehaviorY = 'contain';
 
-        // 3. Mark the element as fixed to prevent re-processing.
+        element.style.touchAction = 'none';
+
+        // 3. Prevent body scroll when touching canvas
+
+        element.addEventListener('touchstart', function() {
+
+            document.body.style.overflow = 'hidden';
+
+        }, { passive: true });
+
+        element.addEventListener('touchend', function() {
+
+            document.body.style.overflow = '';
+
+        }, { passive: true });
+
+        // 4. Mark as fixed
 
         element.setAttribute(fixedAttribute, 'true');
+
+    }
+
+    /**
+
+     * Fixes image overlay issues - adds close functionality
+
+     */
+
+    function fixImageOverlay() {
+
+        // Find image overlays and add click-to-close
+
+        const observer = new MutationObserver(function(mutations) {
+
+            mutations.forEach(function(mutation) {
+
+                mutation.addedNodes.forEach(function(node) {
+
+                    if (node.nodeType === 1) {
+
+                        // Look for image containers that might overlay content
+
+                        const imgContainers = node.querySelectorAll('img[src*="stem"], .stem-image, [class*="image"]');
+
+                        imgContainers.forEach(function(img) {
+
+                            const parent = img.closest('div[style*="position"]');
+
+                            if (parent && !parent.hasAttribute('data-close-fixed')) {
+
+                                parent.style.cursor = 'pointer';
+
+                                parent.addEventListener('click', function(e) {
+
+                                    if (e.target === parent || e.target === img) {
+
+                                        parent.style.display = 'none';
+
+                                    }
+
+                                });
+
+                                parent.setAttribute('data-close-fixed', 'true');
+
+                            }
+
+                        });
+
+                    }
+
+                });
+
+            });
+
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
 
     }
 
@@ -153,5 +237,7 @@
     // Start the process.
 
     initializeObserver();
+
+    fixImageOverlay();
 
 })();
