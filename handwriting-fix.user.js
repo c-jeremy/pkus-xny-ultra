@@ -120,7 +120,7 @@
 
                             if (parent && !parent.hasAttribute('data-overlay-fixed')) {
 
-                                parent.style.maxHeight = 'calc(100vh - 100px)';
+                                parent.style.maxHeight = 'calc(100vh - 140px)';
 
                                 parent.style.height = 'auto';
 
@@ -128,17 +128,23 @@
 
                                 parent.style.cursor = 'pointer';
 
-                                parent.style.position = 'fixed';
+                                parent.style.position = parent.style.position || 'relative';
 
-                                parent.style.top = '0';
+                                parent.style.removeProperty('top');
 
-                                parent.style.bottom = '100px';
+                                parent.style.removeProperty('bottom');
 
-                                parent.style.left = '0';
+                                parent.style.removeProperty('left');
 
-                                parent.style.right = '0';
+                                parent.style.removeProperty('right');
 
-                                parent.style.zIndex = '9999';
+                                parent.style.removeProperty('z-index');
+
+                                parent.style.paddingBottom = parent.style.paddingBottom || '12px';
+
+                                parent.style.boxSizing = 'border-box';
+
+                                parent.style.pointerEvents = 'auto';
 
                                 parent.addEventListener('click', function(e) {
 
