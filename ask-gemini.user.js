@@ -751,7 +751,12 @@ function setDefaultModel(model) {
 
     const onTouchMove = () => clearTimeout(pressTimer);
 
-    const onContextMenu = (e) => { if (longPressTriggered) e.preventDefault(); };
+    const onContextMenu = (e) => {
+        if (e.target.tagName === 'IMG' || longPressTriggered) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    };
 
     document.addEventListener('touchstart', onTouchStart, { passive: false });
 
@@ -759,7 +764,7 @@ function setDefaultModel(model) {
 
     document.addEventListener('touchmove', onTouchMove);
 
-    document.addEventListener('contextmenu', onContextMenu);
+    document.addEventListener('contextmenu', onContextMenu, { capture: true });
 
     // --- 3. UI 创建 (自定义菜单和对话框) ---
 
